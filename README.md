@@ -1,4 +1,2 @@
-wisdomexchange
-==============
-
-The Wisdom Exchage
+The Wisdom Exchange
+===================
