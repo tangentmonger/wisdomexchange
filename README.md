@@ -24,20 +24,20 @@ deposited in the Bin of Hindsight and Regret.*
 ![Irish wisdom](https://raw.githubusercontent.com/tangentmonger/wisdomexchange/master/img/irishwisdom.jpg "Irish wisdom")
 
 Behind the scenes
------------------
+=================
 
 Video of prototype
-==================
+------------------
 
 [![Prototype](http://img.youtube.com/vi/kCh73GHcI_o/0.jpg)](http://www.youtube.com/watch?v=kCh73GHcI_o)
 
 Inner workings
-==============
+--------------
 
 ![Inside](https://raw.githubusercontent.com/tangentmonger/wisdomexchange/master/img/inside.jpg "Inside")
 
 USB port for power
-==================
+------------------
 
 ![USB port](https://raw.githubusercontent.com/tangentmonger/wisdomexchange/master/img/usbport.jpg "USB port")
 
