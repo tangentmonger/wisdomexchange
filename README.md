@@ -26,7 +26,7 @@ deposited in the Bin of Hindsight and Regret.*
 Behind the scenes
 -----------------
 
-Prototyping: http://www.youtube.com/watch?v=kCh73GHcI_o#t=12
+[![Prototype](http://img.youtube.com/vi/kCh73GHcI_o/0.jpg)](http://www.youtube.com/watch?v=kCh73GHcI_o)
 
 ![Inside](https://raw.githubusercontent.com/tangentmonger/wisdomexchange/master/img/inside.jpg "Inside")
 
