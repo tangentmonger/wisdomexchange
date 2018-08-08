@@ -1,5 +1,5 @@
 /*
-Wisdom Exchange code, January 2014 (TOGhibition in the Exchange)
+Wisdom Exchange code, Burning Man 2018
  
  Sleep until button is pressed, then roll one wisdom's worth of paper,
  then slice, then sleep.
@@ -19,32 +19,43 @@ Wisdom Exchange code, January 2014 (TOGhibition in the Exchange)
 
 long slicerRunTime;
 
+const int ENABLE = 8;     // enable H-bridges that drive roller stepper motor
+const int ROLLER_1A = 3;  // roller stepper motor
+const int ROLLER_2A = 4;  // "
+const int ROLLER_3A = 6;  // "
+const int ROLLER_4A = 7;  // "
+const int BUTTON = 2;     // brass button on top. 1=open, 0=pressed
+const int SLICER = 9;     // DC motor that drives paper slicer
+const int LIMIT = 10;     // limit switch on slicer. 0=slicer at limit switch, 1=somewhere else
+const int DEBUG_LED = 13; // LED on Arduino
+
+const int OFF = LOW;
+const int ON = HIGH;
+const int PRESSED = 0; // button state
+const int CLOSED = 0; // limit switch closed by slicer
+const int OPEN = 1; // limit switch open
+
 void setup() {                
-  // initialize the digital pin as an output.
   Serial.begin(9600);
 
-  pinMode(8, OUTPUT); //1,2EN and 3,4EN
-  pinMode(3, OUTPUT); //1A
-  pinMode(4, OUTPUT); //2A
 
+  pinMode(ENABLE, OUTPUT);
+  pinMode(ROLLER_1A, OUTPUT);
+  pinMode(ROLLER_2A, OUTPUT);
+  pinMode(ROLLER_3A, OUTPUT);
+  pinMode(ROLLER_4A, OUTPUT);
+  pinMode(BUTTON, INPUT);
+  pinMode(SLICER, OUTPUT);
+  pinMode(LIMIT, INPUT);
+  pinMode(DEBUG_LED, OUTPUT);
 
-  pinMode(6, OUTPUT); //3A
-  pinMode(7, OUTPUT); //4A
+  digitalWrite(ROLLER_1A, OFF);
+  digitalWrite(ROLLER_2A, OFF);
+  digitalWrite(ROLLER_3A, OFF);
+  digitalWrite(ROLLER_4A, OFF);
+  digitalWrite(SLICER, OFF);
 
-  pinMode(2, INPUT); //BUTTON, 1=open, 0=pressed
-  pinMode(9, OUTPUT); //SLICE 
-  pinMode(10, INPUT); //LIMIT, 0=at limit switch, 1=in slice
-
-
-  pinMode(13, OUTPUT); //Arduino LED
-
-  digitalWrite(3, LOW);  // 1A
-  digitalWrite(4, LOW);  // 2A
-  digitalWrite(6, LOW);  // 3A
-  digitalWrite(7, LOW);  // 4A  
-  digitalWrite(9, LOW);  // slice
-
-  digitalWrite(8, LOW);   //disable 1A,2A,3A,4A on H-bridge chip
+  digitalWrite(ENABLE, OFF); //disable 1A,2A,3A,4A on H-bridge chip
 
   //calibrate and set slicer
   slicerRunTime = getSlicerRunTime();
@@ -58,8 +69,8 @@ void setup() {
 void enterSleep(void)
 {
 
-  /* Setup pin2 as an interrupt and attach handler. */
-  attachInterrupt(0, pin2Interrupt, LOW);
+  /* Set up button press as an interrupt and attach handler. */
+  attachInterrupt(0, buttonInterrupt, PRESSED);
   delay(100);
 
   set_sleep_mode(SLEEP_MODE_PWR_DOWN); //most power saving
@@ -75,8 +86,8 @@ void enterSleep(void)
 
   runWisdom();
 
-  //in case they are still holding the button, wait for them to stop (otherwise it crashes :S)
-  while(digitalRead(2) == 0)
+  //in case they are still holding the button, wait for them to let go
+  while(digitalRead(BUTTON) == PRESSED)
   {
     //wait
   } 
@@ -84,7 +95,7 @@ void enterSleep(void)
   enterSleep();
 }
 
-void pin2Interrupt(void)
+void buttonInterrupt(void)
 {
   /* This will bring us back from sleep. */
 
@@ -108,51 +119,51 @@ void  runWisdom() {
 
 
 void drive(int distance){
-  //1, 1&3, 3, 3&2, 2, 2&4, 4, 4&1
+  // stepper motor sequence: 1, 1&3, 3, 3&2, 2, 2&4, 4, 4&1
 
-  digitalWrite(8, HIGH);   //enable 1,2,3,4
+  digitalWrite(ENABLE, ON);
 
   int speed = 2;
   for(int i=0; i<distance; i++){
 
     //(4)&1
-    digitalWrite(3, HIGH);  // 1A on
+    digitalWrite(ROLLER_1A, ON);
     delay(speed);
 
     //1
-    digitalWrite(7, LOW);  // 4A off
+    digitalWrite(ROLLER_4A, OFF);
     delay(speed);
 
     //1&3
-    digitalWrite(6, HIGH);  // 3A on
+    digitalWrite(ROLLER_3A, ON);
     delay(speed);
 
     //3
-    digitalWrite(3, LOW);  // 1A off
+    digitalWrite(ROLLER_1A, OFF);
     delay(speed);
 
     //3&2
-    digitalWrite(4, HIGH);  // 2A on
+    digitalWrite(ROLLER_2A, ON);
     delay(speed);
 
     //2
-    digitalWrite(6, LOW);  // 3A off
+    digitalWrite(ROLLER_3A, OFF);
     delay(speed);
 
     //2&4
-    digitalWrite(7, HIGH);  // 4A on
+    digitalWrite(ROLLER_4A, ON);
     delay(speed);
 
     //4
-    digitalWrite(4, LOW);  // 2A off
+    digitalWrite(ROLLER_2A, OFF);
     delay(speed);
   }
 
-  digitalWrite(8, LOW);   //disable 1,2,3,4
+  digitalWrite(ENABLE, OFF);
 }
 
 void slice() {
-  digitalWrite(13, HIGH);  // led on
+  digitalWrite(DEBUG_LED, ON);
   // if we're at the limit already, drive until off and then some
   // if we started away from the limit, drive until we hit it and them some
 
@@ -164,19 +175,21 @@ void slice() {
   //startWatchdog(); //count down while slicing so that it will stop if it gets stuck
 
 
-  if(digitalRead(10) == 1) // ie we started with the slicer somewhere in the slice
+  if(digitalRead(LIMIT) == OPEN)
   {
-    while(digitalRead(10) == 1){ // ie open
-      digitalWrite(9, HIGH);  // slice until closed
+    // we started with the slicer somewhere mid-slice
+    while(digitalRead(LIMIT) == OPEN){
+      // so slice until closed
+      digitalWrite(SLICER, ON);
       //kickWatchdog();
     }
     // it's now closed
     delay(10); //debounce
   }
 
-  //leaving limit switch
-  digitalWrite(9, HIGH);  // slice
-  while(digitalRead(10) == 0){ // ie closed
+  //leave limit switch
+  digitalWrite(SLICER, ON);
+  while(digitalRead(LIMIT) == CLOSED){
     //kickWatchdog();
   }
 
@@ -185,27 +198,27 @@ void slice() {
   delay(10); //debounce
 
   //run fast for 80% of time required
-  while(millis() < startOutside+slicerRunTime){ // ie open
+  while(millis() < startOutside+slicerRunTime){
     //kickWatchdog();
     // keep slicing
   }
 
   //then PWM it slowly back to the switch
-  analogWrite(9, 128);
-  while(digitalRead(10) == 1){ // ie open
+  analogWrite(SLICER, 128);
+  while(digitalRead(LIMIT) == OPEN){
   }
   
   // it's now closed
-  digitalWrite(9, LOW);  // stop slicing immediately
+  digitalWrite(SLICER, OFF);  // stop slicing immediately
   delay(10); //debounce AFTER stopping
-  digitalWrite(13, LOW);  // led off
+  digitalWrite(DEBUG_LED, OFF);
 
   //Serial.println(watchdogMajor);
   //Serial.println(watchdogMinor);
 }
 
 long getSlicerRunTime() {
-  digitalWrite(13, HIGH);  // led on
+  digitalWrite(DEBUG_LED, ON);
   // if we're at the limit already, drive until off and then some
   // if we started away from the limit, drive until we hit it and them some
 
@@ -217,19 +230,20 @@ long getSlicerRunTime() {
   //startWatchdog(); //count down while slicing so that it will stop if it gets stuck
 
 
-  if(digitalRead(10) == 1) // ie we started with the slicer somewhere in the slice
+  if(digitalRead(LIMIT) == OPEN)
   {
-    while(digitalRead(10) == 1){ // ie open
-      digitalWrite(9, HIGH);  // slice until closed
+    // we started wiht the slicer somewhere mid-slice
+    while(digitalRead(LIMIT) == OPEN){
+      digitalWrite(SLICER, ON);  // slice until closed
       //kickWatchdog();
     }
     // it's now closed
     delay(10); //debounce
   }
 
-  //leaving limit switch
-  digitalWrite(9, HIGH);  // slice
-  while(digitalRead(10) == 0){ // ie closed
+  //leave limit switch
+  digitalWrite(SLICER, ON);
+  while(digitalRead(LIMIT) == CLOSED){
     //kickWatchdog();
   }
 
@@ -237,16 +251,16 @@ long getSlicerRunTime() {
   //  it's now open
   delay(10); //debounce
 
-  while(digitalRead(10) == 1){ // ie open
+  while(digitalRead(LIMIT) == OPEN){
     //kickWatchdog();
     // keep slicing
   }
   long timeOutside = millis() - startOutside;
 
   // it's now closed
-  digitalWrite(9, LOW);  // stop slicing immediately
+  digitalWrite(SLICER, OFF);  // stop slicing immediately
   delay(10); //debounce AFTER stopping
-  digitalWrite(13, LOW);  // led off
+  digitalWrite(DEBUG_LED, OFF);
 
 
   return timeOutside * 0.7; //70% of time required
