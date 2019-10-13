@@ -1,7 +1,12 @@
 The Wisdom Exchange
 ===================
+An interactive, Arduino-based art project allowing participants to share written words of wisdom.
 
-![Wisdom Exchange](https://raw.githubusercontent.com/tangentmonger/wisdomexchange/master/img/wisdomexchange.jpg "Wisdom Exchange")
+The Wisdom Exchange consists of a steampunk-style wooden box, a bin with a slot, and a poster.
+
+![Wisdom Exchange](./img/wisdomexchange.jpg "Wisdom Exchange")
+
+The poster provides operating instructions:
 
 **WRITE YOUR WISDOM**
 upon the Page.  Take note: Original wisdom only!  Every one of us
@@ -21,23 +26,23 @@ Knowledge of Kindly Strangers whom you may Never Meet.
 *Unwanted, unheeded and unappreciated Wisdom may be 
 deposited in the Bin of Hindsight and Regret.*
 
+![Instructions](./poster/fullposter.png "Instructions")
+
+The Wisdom Exchange in action
+-----------------------------
+[![Video](./img/actionVideo.png)](https://vimeo.com/296754216)
+
+Sample Wisdom
+-------------
+
+Some example wisdom from an Irish event:
+
 ![Irish wisdom](https://raw.githubusercontent.com/tangentmonger/wisdomexchange/master/img/irishwisdom.jpg "Irish wisdom")
+
+![More wisdom](https://github.com/tangentmonger/wisdomexchangemarkII/tree/master/sample_wisdom)
 
 Behind the scenes
 =================
 
-Video of prototype
-------------------
-
-[![Prototype](http://img.youtube.com/vi/kCh73GHcI_o/0.jpg)](http://www.youtube.com/watch?v=kCh73GHcI_o)
-
-Inner workings
---------------
-
-![Inside](https://raw.githubusercontent.com/tangentmonger/wisdomexchange/master/img/inside.jpg "Inside")
-
-USB port for power
-------------------
-
-![USB port](https://raw.githubusercontent.com/tangentmonger/wisdomexchange/master/img/usbport.jpg "USB port")
+[![Video](./img/insideVideo.png)](https://vimeo.com/296755413)
 
