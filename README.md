@@ -10,7 +10,7 @@ The poster provides operating instructions:
 
 **WRITE YOUR WISDOM**
 upon the Page.  Take note: Original wisdom only!  Every one of us
-has in his Life uncovered for himself, through joyful or bitter 
+has in their Life uncovered for themselves, through joyful or bitter 
 experience, a TRUTH to share, be it profound or trifling.
 *In case you have Forgotten to Bring a PEN, a PEN has been provided.*
 
